@@ -4,11 +4,14 @@
 
 3. Features
 AI/ML-based crop prediction system
+
 Takes soil and environmental parameters as input
+
 Real-time prediction results using trained model
+
 User-friendly web interface built with Django
 
-4. Tech Stack
+5. Tech Stack
 Python
 Django
 Random forest(ML Model)
@@ -16,7 +19,7 @@ HTML, CSS, JavaScript
 SQLite (Database)
 Pandas, NumPy (Data processing)
 
-5. Installation Steps
+6. Installation Steps
 git clone <your-repository-url>
 cd smart-crop-recommendation
 python -m venv venv
