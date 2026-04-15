@@ -1,0 +1,240 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crop Recommendation</title>
+
+  <!-- Bootstrap + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #d4fc79, #96e6a1);
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .navbar {
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .hero {
+      text-align: center;
+      padding: 25px 0;
+      color: #2f855a;
+    }
+
+    .container-box {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 900px;
+      margin: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .form-control {
+      border-radius: 10px;
+    }
+
+    .btn-custom {
+      background: #38a169;
+      border: none;
+      border-radius: 30px;
+      padding: 10px 30px;
+      font-size: 18px;
+      color: white;
+    }
+
+    .btn-custom:hover {
+      background: #2f855a;
+    }
+
+    .card {
+      margin: 20px auto;
+      width: 320px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-body {
+      padding: 10px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 15px;
+      margin-top: 30px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">🌱 CropAI</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>Smart Crop Recommendation 🌾</h1>
+  <p>Get the best crop based on soil & weather 🌦️</p>
+</div>
+
+<!-- Form -->
+<div class="container">
+  <div class="container-box">
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="row g-3">
+
+        <div class="col-md-4">
+          <label>Nitrogen</label>
+          <input type="number" name="N" class="form-control" required>
+        </div>
+
+        <div class="col-md-4">
+          <label>Phosphorus</label>
+          <input type="number" name="P" class="form-control" required>
+        </div>
+
+        <div class="col-md-4">
+          <label>Potassium</label>
+          <input type="number" name="K" class="form-control" required>
+        </div>
+
+        <!-- 🌡 Temperature -->
+        <div class="col-md-4">
+          <label>Temperature (°C)</label>
+          <input type="number" step="0.01" name="temperature"
+                 id="temperature" class="form-control"
+                 value="{{ weather.temperature|default:'' }}" required>
+        </div>
+
+        <!-- 💧 Humidity -->
+        <div class="col-md-4">
+          <label>Humidity (%)</label>
+          <input type="number" step="0.01" name="humidity"
+                 id="humidity" class="form-control"
+                 value="{{ weather.humidity|default:'' }}" required>
+        </div>
+
+        <!-- ⚗ pH -->
+        <div class="col-md-4">
+          <label>pH</label>
+          <input type="number" step="0.01" name="ph" class="form-control" required>
+        </div>
+
+        <!-- 🌧 Rainfall -->
+        <div class="col-md-4">
+          <label>Rainfall (mm)</label>
+          <input type="number" step="0.01" name="rainfall"
+                 id="rainfall" class="form-control"
+                 value="{{ weather.rainfall|default:'' }}" required>
+        </div>
+
+      </div>
+
+      <!-- 🌦️ Auto Fill Button -->
+      <div class="text-center mt-3">
+        <button type="button" class="btn btn-info" onclick="getWeather()">
+          🌦️ Auto Fill Weather
+        </button>
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-custom">
+          🌱 Get Recommendation
+        </button>
+      </div>
+
+    </form>
+
+    <!-- Result -->
+    {% if result %}
+    <div class="card bg-dark text-white text-center">
+      <a href="{% url 'crop_detail' result %}">
+        <img src="{% static result|lower|add:'.png' %}">
+      </a>
+      <div class="card-body">
+        <h5 class="fw-bold text-success">🌱 {{ result|title }}</h5>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>© 2026 CropAI 🌿</p>
+</div>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function getWeather() {
+    if (!navigator.geolocation) {
+        alert("Geolocation not supported");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+
+        let lat = position.coords.latitude;
+        let lon = position.coords.longitude;
+
+        fetch(`/get-weather/?lat=${lat}&lon=${lon}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("temperature").value = data.temperature;
+            document.getElementById("humidity").value = data.humidity;
+            document.getElementById("rainfall").value = data.rainfall;
+        })
+        .catch(() => {
+            alert("Failed to fetch weather data");
+        });
+
+    }, function() {
+        alert("Location access denied");
+    });
+}
+</script>
+
+</body>
+</html>
